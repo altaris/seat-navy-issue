@@ -126,6 +126,7 @@
     <span class="s2">&quot;PolygonField&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SequenceField&quot;</span><span class="p">,</span>
     <span class="s2">&quot;UUIDField&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EnumField&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MultiPointField&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MultiLineStringField&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MultiPolygonField&quot;</span><span class="p">,</span>
@@ -472,7 +473,7 @@
 <span class="sd">        :param max_value: Validation rule for the maximum acceptable value.</span>
 <span class="sd">        :param force_string: Store the value as a string (instead of a float).</span>
 <span class="sd">         Be aware that this affects query sorting and operation like lte, gte (as string comparison is applied)</span>
-<span class="sd">         and some query operator won&#39;t work (e.g: inc, dec)</span>
+<span class="sd">         and some query operator won&#39;t work (e.g. inc, dec)</span>
 <span class="sd">        :param precision: Number of decimal places to store.</span>
 <span class="sd">        :param rounding: The rounding rule from the python decimal library:</span>
 
@@ -812,6 +813,9 @@
 
     <span class="k">def</span> <span class="nf">prepare_query_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">document_type</span><span class="p">):</span>
+            <span class="c1"># Short circuit for special operators, returning them as is</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;$&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="k">return</span> <span class="n">value</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document_type</span><span class="o">.</span><span class="n">_from_son</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
@@ -883,8 +887,7 @@
 <span class="sd">    Used by :class:`~mongoengine.DynamicDocument` to handle dynamic data&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">to_mongo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">use_db_field</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Convert a Python type to a MongoDB compatible type.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Convert a Python type to a MongoDB compatible type.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">value</span>
@@ -1658,6 +1661,70 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">prepare_query_value</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_mongo</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
 
 
+<span class="k">class</span> <span class="nc">EnumField</span><span class="p">(</span><span class="n">BaseField</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Enumeration Field. Values are stored underneath as is,</span>
+<span class="sd">    so it will only work with simple types (str, int, etc) that</span>
+<span class="sd">    are bson encodable</span>
+<span class="sd">     Example usage:</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        class Status(Enum):</span>
+<span class="sd">            NEW = &#39;new&#39;</span>
+<span class="sd">            DONE = &#39;done&#39;</span>
+
+<span class="sd">        class ModelWithEnum(Document):</span>
+<span class="sd">            status = EnumField(Status, default=Status.NEW)</span>
+
+<span class="sd">        ModelWithEnum(status=&#39;done&#39;)</span>
+<span class="sd">        ModelWithEnum(status=Status.DONE)</span>
+
+<span class="sd">    Enum fields can be searched using enum or its value:</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        ModelWithEnum.objects(status=&#39;new&#39;).count()</span>
+<span class="sd">        ModelWithEnum.objects(status=Status.NEW).count()</span>
+
+<span class="sd">    Note that choices cannot be set explicitly, they are derived</span>
+<span class="sd">    from the provided enum class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enum</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enum_cls</span> <span class="o">=</span> <span class="n">enum</span>
+        <span class="k">if</span> <span class="s2">&quot;choices&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;&#39;choices&#39; can&#39;t be set on EnumField, &quot;</span>
+                <span class="s2">&quot;it is implicitly set as the enum class&quot;</span>
+            <span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;choices&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_enum_cls</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">is_legal_value</span> <span class="o">=</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enum_cls</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_legal_value</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enum_cls</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__set__</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">to_mongo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enum_cls</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enum_cls</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_enum_cls</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">prepare_query_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">prepare_query_value</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_mongo</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+
 <span class="k">class</span> <span class="nc">GridFSError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span>
 
@@ -2081,7 +2148,7 @@
 
 <span class="k">class</span> <span class="nc">SequenceField</span><span class="p">(</span><span class="n">BaseField</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Provides a sequential counter see:</span>
-<span class="sd">     http://www.mongodb.org/display/DOCS/Object+IDs#ObjectIDs-SequenceNumbers</span>
+<span class="sd">     https://docs.mongodb.com/manual/reference/method/ObjectId/#ObjectIDs-SequenceNumbers</span>
 
 <span class="sd">    .. note::</span>
 
