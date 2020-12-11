@@ -256,7 +256,7 @@ def new_teamspeak_connection() -> TS3Connection:
         raise RuntimeError("Configuration key conf.teamspeak.password is None")
     connection = TS3Connection(conf.teamspeak.host, conf.teamspeak.port)
     connection.use(sid=conf.teamspeak.server_id)
-    username = f"{conf.teamspeak.username} ({utils.random_code(5)})"
+    username = conf.teamspeak.username
     connection.login(
         client_login_name=username,
         client_login_password=conf.teamspeak.password.get_secret_value(),
