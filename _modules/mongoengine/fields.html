@@ -75,7 +75,6 @@
 <span class="kn">from</span> <span class="nn">mongoengine.connection</span> <span class="kn">import</span> <span class="n">DEFAULT_CONNECTION_NAME</span><span class="p">,</span> <span class="n">get_db</span>
 <span class="kn">from</span> <span class="nn">mongoengine.document</span> <span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">EmbeddedDocument</span>
 <span class="kn">from</span> <span class="nn">mongoengine.errors</span> <span class="kn">import</span> <span class="n">DoesNotExist</span><span class="p">,</span> <span class="n">InvalidQueryError</span><span class="p">,</span> <span class="n">ValidationError</span>
-<span class="kn">from</span> <span class="nn">mongoengine.mongodb_support</span> <span class="kn">import</span> <span class="n">MONGODB_36</span><span class="p">,</span> <span class="n">get_mongodb_version</span>
 <span class="kn">from</span> <span class="nn">mongoengine.queryset</span> <span class="kn">import</span> <span class="n">DO_NOTHING</span>
 <span class="kn">from</span> <span class="nn">mongoengine.queryset.base</span> <span class="kn">import</span> <span class="n">BaseQuerySet</span>
 <span class="kn">from</span> <span class="nn">mongoengine.queryset.transform</span> <span class="kn">import</span> <span class="n">STRING_OPERATORS</span>
@@ -140,6 +139,12 @@
     <span class="sd">&quot;&quot;&quot;A unicode string field.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param regex: (optional) A string pattern that will be applied during validation</span>
+<span class="sd">        :param max_length: (optional) A max length that will be applied during validation</span>
+<span class="sd">        :param min_length: (optional) A min length that will be applied during validation</span>
+<span class="sd">        :param kwargs: Keyword arguments passed into the parent :class:`~mongoengine.BaseField`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">regex</span><span class="p">)</span> <span class="k">if</span> <span class="n">regex</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_length</span> <span class="o">=</span> <span class="n">max_length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_length</span> <span class="o">=</span> <span class="n">min_length</span>
@@ -195,10 +200,7 @@
 
 
 <span class="k">class</span> <span class="nc">URLField</span><span class="p">(</span><span class="n">StringField</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A field that validates input as an URL.</span>
-
-<span class="sd">    .. versionadded:: 0.3</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A field that validates input as an URL.&quot;&quot;&quot;</span>
 
     <span class="n">_URL_REGEX</span> <span class="o">=</span> <span class="n">LazyRegexCompiler</span><span class="p">(</span>
         <span class="sa">r</span><span class="s2">&quot;^(?:[a-z0-9\.\-]*)://&quot;</span>  <span class="c1"># scheme is validated separately</span>
@@ -213,6 +215,11 @@
     <span class="n">_URL_SCHEMES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;https&quot;</span><span class="p">,</span> <span class="s2">&quot;ftp&quot;</span><span class="p">,</span> <span class="s2">&quot;ftps&quot;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url_regex</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">schemes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param url_regex: (optional) Overwrite the default regex used for validation</span>
+<span class="sd">        :param schemes: (optional) Overwrite the default URL schemes that are allowed</span>
+<span class="sd">        :param kwargs: Keyword arguments passed into the parent :class:`~mongoengine.StringField`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">url_regex</span> <span class="o">=</span> <span class="n">url_regex</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_URL_REGEX</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schemes</span> <span class="o">=</span> <span class="n">schemes</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_URL_SCHEMES</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -221,18 +228,15 @@
         <span class="c1"># Check first if the scheme is valid</span>
         <span class="n">scheme</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;://&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schemes</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid scheme </span><span class="si">{}</span><span class="s2"> in URL: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">scheme</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid scheme </span><span class="si">{scheme}</span><span class="s2"> in URL: </span><span class="si">{value}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Then check full URL</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">url_regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid URL: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid URL: </span><span class="si">{value}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">EmailField</span><span class="p">(</span><span class="n">StringField</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A field that validates input as an email address.</span>
-
-<span class="sd">    .. versionadded:: 0.4</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A field that validates input as an email address.&quot;&quot;&quot;</span>
 
     <span class="n">USER_REGEX</span> <span class="o">=</span> <span class="n">LazyRegexCompiler</span><span class="p">(</span>
         <span class="c1"># `dot-atom` defined in RFC 5322 Section 3.2.3.</span>
@@ -266,18 +270,13 @@
         <span class="n">allow_utf8_user</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">allow_ip_domain</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Initialize the EmailField.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            domain_whitelist (list) - list of otherwise invalid domain</span>
-<span class="sd">                                      names which you&#39;d like to support.</span>
-<span class="sd">            allow_utf8_user (bool) - if True, the user part of the email</span>
-<span class="sd">                                     address can contain UTF8 characters.</span>
-<span class="sd">                                     False by default.</span>
-<span class="sd">            allow_ip_domain (bool) - if True, the domain part of the email</span>
-<span class="sd">                                     can be a valid IPv4 or IPv6 address.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param domain_whitelist: (optional) list of valid domain names applied during validation</span>
+<span class="sd">        :param allow_utf8_user: Allow user part of the email to contain utf8 char</span>
+<span class="sd">        :param allow_ip_domain: Allow domain part of the email to be an IPv4 or IPv6 address</span>
+<span class="sd">        :param kwargs: Keyword arguments passed into the parent :class:`~mongoengine.StringField`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">domain_whitelist</span> <span class="o">=</span> <span class="n">domain_whitelist</span> <span class="ow">or</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">allow_utf8_user</span> <span class="o">=</span> <span class="n">allow_utf8_user</span>
@@ -349,6 +348,11 @@
     <span class="sd">&quot;&quot;&quot;32-bit integer field.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param min_value: (optional) A min value that will be applied during validation</span>
+<span class="sd">        :param max_value: (optional) A max value that will be applied during validation</span>
+<span class="sd">        :param kwargs: Keyword arguments passed into the parent :class:`~mongoengine.BaseField`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span> <span class="o">=</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -382,6 +386,11 @@
     <span class="sd">&quot;&quot;&quot;64-bit integer field. (Equivalent to IntField since the support to Python2 was dropped)&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param min_value: (optional) A min value that will be applied during validation</span>
+<span class="sd">        :param max_value: (optional) A max value that will be applied during validation</span>
+<span class="sd">        :param kwargs: Keyword arguments passed into the parent :class:`~mongoengine.BaseField`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span> <span class="o">=</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -418,6 +427,11 @@
     <span class="sd">&quot;&quot;&quot;Floating point number field.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param min_value: (optional) A min value that will be applied during validation</span>
+<span class="sd">        :param max_value: (optional) A max value that will be applied during validation</span>
+<span class="sd">        :param kwargs: Keyword arguments passed into the parent :class:`~mongoengine.BaseField`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span> <span class="o">=</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -454,9 +468,6 @@
 <span class="k">class</span> <span class="nc">DecimalField</span><span class="p">(</span><span class="n">BaseField</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Fixed-point decimal number field. Stores the value as a float by default unless `force_string` is used.</span>
 <span class="sd">    If using floats, beware of Decimal to float conversion (potential precision loss)</span>
-
-<span class="sd">    .. versionchanged:: 0.8</span>
-<span class="sd">    .. versionadded:: 0.3</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -466,11 +477,11 @@
         <span class="n">force_string</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">precision</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">rounding</span><span class="o">=</span><span class="n">decimal</span><span class="o">.</span><span class="n">ROUND_HALF_UP</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param min_value: Validation rule for the minimum acceptable value.</span>
-<span class="sd">        :param max_value: Validation rule for the maximum acceptable value.</span>
+<span class="sd">        :param min_value: (optional) A min value that will be applied during validation</span>
+<span class="sd">        :param max_value: (optional) A max value that will be applied during validation</span>
 <span class="sd">        :param force_string: Store the value as a string (instead of a float).</span>
 <span class="sd">         Be aware that this affects query sorting and operation like lte, gte (as string comparison is applied)</span>
 <span class="sd">         and some query operator won&#39;t work (e.g. inc, dec)</span>
@@ -487,7 +498,7 @@
 <span class="sd">            - decimal.ROUND_05UP (away from zero if last digit after rounding towards zero would have been 0 or 5; otherwise towards zero)</span>
 
 <span class="sd">            Defaults to: ``decimal.ROUND_HALF_UP``</span>
-
+<span class="sd">        :param kwargs: Keyword arguments passed into the parent :class:`~mongoengine.BaseField`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_value</span> <span class="o">=</span> <span class="n">min_value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span> <span class="o">=</span> <span class="n">max_value</span>
@@ -537,10 +548,7 @@
 
 
 <span class="k">class</span> <span class="nc">BooleanField</span><span class="p">(</span><span class="n">BaseField</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Boolean field type.</span>
-
-<span class="sd">    .. versionadded:: 0.1.2</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Boolean field type.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">to_python</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
@@ -585,12 +593,13 @@
         <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">value</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_parse_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_parse_datetime</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
         <span class="c1"># Attempt to parse a datetime from a string</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
@@ -666,13 +675,12 @@
 <span class="sd">    keyword when initializing the field.</span>
 
 <span class="sd">    Note: To default the field to the current datetime, use: DateTimeField(default=datetime.utcnow)</span>
-
-<span class="sd">    .. versionadded:: 0.5</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param separator: Allows to customize the separator used for storage (default ``,``)</span>
+<span class="sd">        :param kwargs: Keyword arguments passed into the parent :class:`~mongoengine.StringField`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">separator</span> <span class="o">=</span> <span class="n">separator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">separator</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;%Y&quot;</span><span class="p">,</span> <span class="s2">&quot;%m&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;%H&quot;</span><span class="p">,</span> <span class="s2">&quot;%M&quot;</span><span class="p">,</span> <span class="s2">&quot;%S&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">])</span>
@@ -952,10 +960,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">field</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_length</span> <span class="o">=</span> <span class="n">max_length</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">[])</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1014,16 +1021,13 @@
 <span class="sd">    .. note::</span>
 <span class="sd">        The only valid list values are subclasses of</span>
 <span class="sd">        :class:`~mongoengine.EmbeddedDocument`.</span>
-
-<span class="sd">    .. versionadded:: 0.9</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">document_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param document_type: The type of</span>
 <span class="sd">         :class:`~mongoengine.EmbeddedDocument` the list will hold.</span>
-<span class="sd">        :param kwargs: Keyword arguments passed directly into the parent</span>
-<span class="sd">         :class:`~mongoengine.ListField`.</span>
+<span class="sd">        :param kwargs: Keyword arguments passed into the parent :class:`~mongoengine.ListField`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="n">EmbeddedDocumentField</span><span class="p">(</span><span class="n">document_type</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -1038,19 +1042,11 @@
 <span class="sd">        save the whole list then other processes trying to save the whole list</span>
 <span class="sd">        as well could overwrite changes.  The safest way to append to a list is</span>
 <span class="sd">        to perform a push operation.</span>
-
-<span class="sd">    .. versionadded:: 0.4</span>
-<span class="sd">    .. versionchanged:: 0.6 - added reverse keyword</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">_ordering</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">_order_reverse</span> <span class="o">=</span> <span class="kc">False</span>
-
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="s2">&quot;ordering&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ordering</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;ordering&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;reverse&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_order_reverse</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;reverse&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ordering</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;ordering&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_order_reverse</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;reverse&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">to_mongo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">use_db_field</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1097,17 +1093,13 @@
 
 <span class="sd">    .. note::</span>
 <span class="sd">        Required means it cannot be empty - as the default for DictFields is {}</span>
-
-<span class="sd">    .. versionadded:: 0.3</span>
-<span class="sd">    .. versionchanged:: 0.5 - Can now handle complex / varying types of data</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">field</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_auto_dereference</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">{})</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Make sure that a list of valid fields is being used.&quot;&quot;&quot;</span>
@@ -1163,8 +1155,6 @@
     <span class="sd">&quot;&quot;&quot;A field that maps a name to a specified field type. Similar to</span>
 <span class="sd">    a DictField, except the &#39;value&#39; of each item must match the specified</span>
 <span class="sd">    field type.</span>
-
-<span class="sd">    .. versionadded:: 0.5</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1212,8 +1202,6 @@
 <span class="sd">            org = ReferenceField(&#39;Org&#39;, reverse_delete_rule=CASCADE)</span>
 
 <span class="sd">        User.register_delete_rule(Org, &#39;owner&#39;, DENY)</span>
-
-<span class="sd">    .. versionchanged:: 0.5 added `reverse_delete_rule`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -1221,10 +1209,12 @@
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialises the Reference Field.</span>
 
+<span class="sd">        :param document_type: The type of Document that will be referenced</span>
 <span class="sd">        :param dbref:  Store the reference as :class:`~pymongo.dbref.DBRef`</span>
 <span class="sd">          or as the :class:`~pymongo.objectid.ObjectId`.id .</span>
 <span class="sd">        :param reverse_delete_rule: Determines what to do when the referring</span>
 <span class="sd">          object is deleted</span>
+<span class="sd">        :param kwargs: Keyword arguments passed into the parent :class:`~mongoengine.BaseField`</span>
 
 <span class="sd">        .. note ::</span>
 <span class="sd">            A reference to an abstract document type is always stored as a</span>
@@ -1346,17 +1336,15 @@
 
 
 <span class="k">class</span> <span class="nc">CachedReferenceField</span><span class="p">(</span><span class="n">BaseField</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A referencefield with cache fields to purpose pseudo-joins</span>
-
-<span class="sd">    .. versionadded:: 0.9</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A referencefield with cache fields to purpose pseudo-joins&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">document_type</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">auto_sync</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialises the Cached Reference Field.</span>
 
+<span class="sd">        :param document_type: The type of Document that will be referenced</span>
 <span class="sd">        :param fields:  A list of fields to be cached in document</span>
-<span class="sd">        :param auto_sync: if True documents are auto updated.</span>
+<span class="sd">        :param auto_sync: if True documents are auto updated</span>
+<span class="sd">        :param kwargs: Keyword arguments passed into the parent :class:`~mongoengine.BaseField`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fields</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fields</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1385,7 +1373,7 @@
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="n">update_kwargs</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;set__</span><span class="si">{}</span><span class="s2">__</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span> <span class="n">val</span>
+            <span class="sa">f</span><span class="s2">&quot;set__</span><span class="si">{self.name}</span><span class="s2">__</span><span class="si">{key}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">val</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">document</span><span class="o">.</span><span class="n">_delta</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span>
         <span class="p">}</span>
@@ -1524,8 +1512,6 @@
 <span class="sd">          it.</span>
 
 <span class="sd">        * You can use the choices param to limit the acceptable Document types</span>
-
-<span class="sd">    .. versionadded:: 0.3</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1730,12 +1716,7 @@
 
 
 <span class="k">class</span> <span class="nc">GridFSProxy</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Proxy object to handle writing and reading of files to and from GridFS</span>
-
-<span class="sd">    .. versionadded:: 0.4</span>
-<span class="sd">    .. versionchanged:: 0.5 - added optional size param to read</span>
-<span class="sd">    .. versionchanged:: 0.6 - added collection name param</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Proxy object to handle writing and reading of files to and from GridFS&quot;&quot;&quot;</span>
 
     <span class="n">_fs</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -1793,12 +1774,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__copy__</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;&lt;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{self.__class__.__name__}</span><span class="s2">: </span><span class="si">{self.grid_id}</span><span class="s2">&gt;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">gridout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">gridout</span><span class="p">,</span> <span class="s2">&quot;filename&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">gridout</span> <span class="k">else</span> <span class="s2">&quot;&lt;no file&gt;&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;&lt;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2">)&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_id</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">gridout</span><span class="o">.</span><span class="n">filename</span> <span class="k">if</span> <span class="n">gridout</span> <span class="k">else</span> <span class="s2">&quot;&lt;no file&gt;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{self.__class__.__name__}</span><span class="s2">: </span><span class="si">{filename}</span><span class="s2"> (</span><span class="si">{self.grid_id}</span><span class="s2">)&gt;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">GridFSProxy</span><span class="p">):</span>
@@ -1897,12 +1878,7 @@
 
 
 <span class="k">class</span> <span class="nc">FileField</span><span class="p">(</span><span class="n">BaseField</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A GridFS storage field.</span>
-
-<span class="sd">    .. versionadded:: 0.4</span>
-<span class="sd">    .. versionchanged:: 0.5 added optional size param for read</span>
-<span class="sd">    .. versionchanged:: 0.6 added db_alias for multidb support</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A GridFS storage field.&quot;&quot;&quot;</span>
 
     <span class="n">proxy_class</span> <span class="o">=</span> <span class="n">GridFSProxy</span>
 
@@ -1984,11 +1960,7 @@
 
 
 <span class="k">class</span> <span class="nc">ImageGridFsProxy</span><span class="p">(</span><span class="n">GridFSProxy</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Proxy for ImageField</span>
-
-<span class="sd">    versionadded: 0.6</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Proxy for ImageField&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_obj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2122,8 +2094,6 @@
 <span class="sd">    :param size: max size to store images, provided as (width, height, force)</span>
 <span class="sd">        if larger, it will be automatically resized (ex: size=(800, 600, True))</span>
 <span class="sd">    :param thumbnail_size: size to generate a thumbnail, provided as (width, height, force)</span>
-
-<span class="sd">    .. versionadded:: 0.6</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">proxy_class</span> <span class="o">=</span> <span class="n">ImageGridFsProxy</span>
@@ -2171,9 +2141,6 @@
 <span class="sd">        In case the counter is defined in the abstract document, it will be</span>
 <span class="sd">        common to all inherited documents and the default sequence name will</span>
 <span class="sd">        be the class name of the abstract document.</span>
-
-<span class="sd">    .. versionadded:: 0.5</span>
-<span class="sd">    .. versionchanged:: 0.8 added `value_decorator`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_auto_gen</span> <span class="o">=</span> <span class="kc">True</span>
@@ -2187,7 +2154,7 @@
         <span class="n">sequence_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">value_decorator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">collection_name</span> <span class="o">=</span> <span class="n">collection_name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">COLLECTION_NAME</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_alias</span> <span class="o">=</span> <span class="n">db_alias</span> <span class="ow">or</span> <span class="n">DEFAULT_CONNECTION_NAME</span>
@@ -2202,7 +2169,7 @@
 <span class="sd">        Generate and Increment the counter</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sequence_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sequence_name</span><span class="p">()</span>
-        <span class="n">sequence_id</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sequence_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">sequence_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{sequence_name}</span><span class="s2">.</span><span class="si">{self.name}</span><span class="s2">&quot;</span>
         <span class="n">collection</span> <span class="o">=</span> <span class="n">get_db</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_alias</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">collection_name</span><span class="p">]</span>
 
         <span class="n">counter</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">find_one_and_update</span><span class="p">(</span>
@@ -2216,7 +2183,7 @@
     <span class="k">def</span> <span class="nf">set_next_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Helper method to set the next sequence value&quot;&quot;&quot;</span>
         <span class="n">sequence_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sequence_name</span><span class="p">()</span>
-        <span class="n">sequence_id</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sequence_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">sequence_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{sequence_name}</span><span class="s2">.</span><span class="si">{self.name}</span><span class="s2">&quot;</span>
         <span class="n">collection</span> <span class="o">=</span> <span class="n">get_db</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_alias</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">collection_name</span><span class="p">]</span>
         <span class="n">counter</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">find_one_and_update</span><span class="p">(</span>
             <span class="nb">filter</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="n">sequence_id</span><span class="p">},</span>
@@ -2233,7 +2200,7 @@
 <span class="sd">        as it is only fixed on set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sequence_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sequence_name</span><span class="p">()</span>
-        <span class="n">sequence_id</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sequence_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">sequence_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{sequence_name}</span><span class="s2">.</span><span class="si">{self.name}</span><span class="s2">&quot;</span>
         <span class="n">collection</span> <span class="o">=</span> <span class="n">get_db</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">db_alias</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">collection_name</span><span class="p">]</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">find_one</span><span class="p">({</span><span class="s2">&quot;_id&quot;</span><span class="p">:</span> <span class="n">sequence_id</span><span class="p">})</span>
 
@@ -2286,10 +2253,7 @@
 
 
 <span class="k">class</span> <span class="nc">UUIDField</span><span class="p">(</span><span class="n">BaseField</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;A UUID field.</span>
-
-<span class="sd">    .. versionadded:: 0.6</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A UUID field.&quot;&quot;&quot;</span>
 
     <span class="n">_binary</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -2298,9 +2262,6 @@
 <span class="sd">        Store UUID data in the database</span>
 
 <span class="sd">        :param binary: if False store as a string.</span>
-
-<span class="sd">        .. versionchanged:: 0.8.0</span>
-<span class="sd">        .. versionchanged:: 0.6.19</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span> <span class="o">=</span> <span class="n">binary</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -2345,8 +2306,6 @@
 <span class="sd">        representing a geo point. It admits 2d indexes but not &quot;2dsphere&quot; indexes</span>
 <span class="sd">        in MongoDB &gt; 2.4 which are more natural for modeling geospatial points.</span>
 <span class="sd">        See :ref:`geospatial-indexes`</span>
-
-<span class="sd">    .. versionadded:: 0.4</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_geo_index</span> <span class="o">=</span> <span class="n">pymongo</span><span class="o">.</span><span class="n">GEO2D</span>
@@ -2378,8 +2337,6 @@
 <span class="sd">    to set the value.</span>
 
 <span class="sd">    Requires mongodb &gt;= 2.4</span>
-
-<span class="sd">    .. versionadded:: 0.8</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_type</span> <span class="o">=</span> <span class="s2">&quot;Point&quot;</span>
@@ -2398,8 +2355,6 @@
 <span class="sd">    You can either pass a dict with the full information or a list of points.</span>
 
 <span class="sd">    Requires mongodb &gt;= 2.4</span>
-
-<span class="sd">    .. versionadded:: 0.8</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_type</span> <span class="o">=</span> <span class="s2">&quot;LineString&quot;</span>
@@ -2421,8 +2376,6 @@
 <span class="sd">    holes.</span>
 
 <span class="sd">    Requires mongodb &gt;= 2.4</span>
-
-<span class="sd">    .. versionadded:: 0.8</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_type</span> <span class="o">=</span> <span class="s2">&quot;Polygon&quot;</span>
@@ -2442,8 +2395,6 @@
 <span class="sd">    to set the value.</span>
 
 <span class="sd">    Requires mongodb &gt;= 2.6</span>
-
-<span class="sd">    .. versionadded:: 0.9</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_type</span> <span class="o">=</span> <span class="s2">&quot;MultiPoint&quot;</span>
@@ -2463,8 +2414,6 @@
 <span class="sd">    You can either pass a dict with the full information or a list of points.</span>
 
 <span class="sd">    Requires mongodb &gt;= 2.6</span>
-
-<span class="sd">    .. versionadded:: 0.9</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_type</span> <span class="o">=</span> <span class="s2">&quot;MultiLineString&quot;</span>
@@ -2491,8 +2440,6 @@
 <span class="sd">    of Polygons.</span>
 
 <span class="sd">    Requires mongodb &gt;= 2.6</span>
-
-<span class="sd">    .. versionadded:: 0.9</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_type</span> <span class="o">=</span> <span class="s2">&quot;MultiPolygon&quot;</span>
@@ -2505,8 +2452,6 @@
 <span class="sd">    Instead, access will return a :class:`~mongoengine.base.LazyReference` class</span>
 <span class="sd">    instance, allowing access to `pk` or manual dereference by using</span>
 <span class="sd">    ``fetch()`` method.</span>
-
-<span class="sd">    .. versionadded:: 0.15</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -2515,7 +2460,7 @@
         <span class="n">passthrough</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">dbref</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">reverse_delete_rule</span><span class="o">=</span><span class="n">DO_NOTHING</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialises the Reference Field.</span>
 
@@ -2609,6 +2554,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">DBRef</span><span class="p">,</span> <span class="n">Document</span><span class="p">,</span> <span class="n">EmbeddedDocument</span><span class="p">)):</span>
             <span class="n">collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">document_type</span><span class="o">.</span><span class="n">_get_collection_name</span><span class="p">()</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">DBRef</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">document_type</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">to_python</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_lazyref</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -2669,8 +2615,6 @@
 <span class="sd">          it.</span>
 
 <span class="sd">        * You can use the choices param to limit the acceptable Document types</span>
-
-<span class="sd">    .. versionadded:: 0.15</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
