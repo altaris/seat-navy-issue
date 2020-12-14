@@ -88,9 +88,7 @@ def client_list(connection: TS3Connection) -> List[TeamspeakClient]:
     """
     return [
         TeamspeakClient(**raw)
-        for raw in cached_teamspeak_query(
-            connection, TS3Connection.clientlist, 300,
-        )
+        for raw in TS3Connection.clientlist(connection).parsed
     ]
 
 
